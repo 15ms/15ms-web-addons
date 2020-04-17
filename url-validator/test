@@ -1,0 +1,7 @@
+https://abc.com?a=1%42
+https://abc.com?a=中文
+https://abc.com?url1=https://a.com?url=https://b.com&url2=https://c.com
+https://abc.com?url1=https://a.com?url=https://b.com&url2=https%3A%2F%2Fc.com
+https://abc.com?url1=https://a.com?url=https%3A%2F%2Fb.com&url2=https%3A%2F%2Fc.com
+https://abc.com?url1=https%3A%2F%2Fa.com%3Furl%3Dhttps%3A%2F%2Fb.com&url2=https%3A%2F%2Fc.com
+https://abc.com?url1=https%3A%2F%2Fa.com%3Furl%3Dhttps%253A%252F%252Fb.com&url2=https%3A%2F%2Fc.com

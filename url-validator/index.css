@@ -1,0 +1,85 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+input[type="text"] {
+  font-size: 1.2rem;
+  display: block;
+  box-sizing: border-box;
+  width: calc(100% - 2rem);
+  margin: 1rem;
+  padding: .5rem;
+  border: 2px solid #ccc;
+  outline: none;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  text-align: left;
+  padding: .4rem .5rem;
+  border: 0px solid #f0f0f0;
+  border-bottom-width: 1px;
+  border-right-width: 1px;
+}
+
+th:last-of-type,
+td:last-of-type {
+  border-right-width: 0;
+}
+
+tr:last-of-type td {
+  border-bottom-width: 0;
+}
+
+th:nth-of-type(1) {
+  width: 20%;
+  min-width: 10rem;
+}
+
+.card {
+  margin: 1rem;
+  border-radius: 1px;
+  box-shadow: 0 0 2px rgba(0,70,150,.6);
+}
+
+.card > .head {
+  padding: .2rem .5rem;
+  font-weight: bold;
+  background: #9cf;
+}
+
+.card > .test {
+  padding: .5rem .4rem;
+  background: #f0f0f0;
+  border-bottom: 1px solid #eee;
+}
+
+span.primary, span.success, span.failure {
+  margin-left: .5rem;
+  padding: .1rem .3rem;
+  border-radius: 2px;
+}
+
+span:first-of-type {
+  margin-left: 0;
+}
+
+span.primary {
+  color: #fff;
+  background: #48d;
+}
+
+span.success {
+  color: #fff;
+  background: #6b4;
+}
+
+span.failure {
+  color: #fff;
+  background: #f43;
+}
