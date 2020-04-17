@@ -7,6 +7,42 @@
     return this.indexOf(item) > -1;
   }
 
+  function decodeToURL(text) {
+    var decode = text;
+    while (true) {
+      try {
+        new URL(decode);
+        break;
+      } catch (error) {
+        var oldDecode = decode;
+        decode = decodeURIComponent(decode);
+        if (oldDecode === decode) {
+          return null;
+        }
+      }
+    }
+    return decode;
+  }
+  
+  function isLessEncoded(text) {
+    var expect = text.replace(/%/g, '%25');
+    return encodeURIComponent(text) !== expect;
+  }
+  
+  function isOverEncoded(text) {
+    try {
+      var decode = decodeURIComponent(text);
+      if (decode === text) return false;
+      var encode = encodeURIComponent(decode);
+      return encode !== text;
+    } catch (error) {
+      console.error(error);
+      // todo - maybe edge case
+      return false;
+    }
+  }
+  
+
   function URLRef(source, depth) {
     this.source = source;
     this.URL = null;
@@ -36,10 +72,15 @@
         if (fixedURLString === this.source + '/') {
           this.isSafeURL = true;
         }
+        if (this.URL.hash && isLessEncoded(this.URL.hash.slice(1))) {
+          this.errors.push('less-encoded-hash');
+          this.isStrictSafeURL = false;
+        }  
         var queryItems = [];
-        var searchStart = this.source.indexOf('?');
-        if (searchStart < 0) return;
-        var search = this.source.slice(searchStart);
+        var startQuery = this.source.indexOf('?');
+        var startHash = this.source.indexOf('#');
+        if (startQuery < 0) return;
+        var search = this.source.slice(startQuery, startHash > 0 ? startHash : this.source.length);
         if (search) {
           var queries = search.slice(1).split('&').map(function (e) {
             if (!e) {
@@ -71,28 +112,11 @@
   function QueryRef(key, value) {
     this.key = key;
     this.value = value;
+    this.decodeToURL = null;
     this.isSafeQuery = false;
     this.errors = [];
   }
-  
-  function isLessEncoded(text) {
-    var expect = text.replace(/%/g, '%25');
-    return encodeURIComponent(text) !== expect;
-  }
-  
-  function isOverEncoded(text) {
-    try {
-      var decode = decodeURIComponent(text);
-      if (decode === text) return false;
-      var encode = encodeURIComponent(decode);
-      return encode !== text;
-    } catch (error) {
-      console.error(error);
-      // todo - maybe edge case
-      return false;
-    }
-  }
-  
+
   QueryRef.prototype = {
     parseSource: function () {
       this.errors = [];
@@ -102,33 +126,24 @@
       if (isOverEncoded(this.key)) {
         this.errors.push('over-encoded-key');
       }
-      if (isLessEncoded(this.value)) {
-        this.errors.push('less-encoded-value');
-      }
-      if (isOverEncoded(this.value)) {
-        this.errors.push('over-encoded-value');
+      if (!this.value) {
+        this.errors.push('empty-value');
+      } else {
+        this.decodeToURL = decodeToURL(this.value);
+        if (!this.decodeToURL) {
+          // URL NEVER over-encoded
+          if (isOverEncoded(this.value)) {
+            this.errors.push('over-encoded-value');
+          }
+        }
+        if (isLessEncoded(this.value)) {
+          this.errors.push('less-encoded-value');
+        }
       }
       this.isSafeQuery = this.errors.length === 0;
     }
   };
 
-
-  function decodeToURL(text) {
-    var decode = text;
-    while (true) {
-      try {
-        new URL(decode);
-        break;
-      } catch (error) {
-        var oldDecode = decode;
-        decode = decodeURIComponent(decode);
-        if (oldDecode === decode) {
-          return null;
-        }
-      }
-    }
-    return decode;
-  }
 
   function tryParseURL(text, depth) {
     var model = [];
@@ -136,17 +151,11 @@
     var ref = new URLRef(text, depth);
     ref.parseSource();
     ref.queryItems.forEach(function (queryItem) {
-      var decodedValueToURL = decodeToURL(queryItem.value);
-      if (decodedValueToURL) {
-        if (!queryItem.isSafeQuery) {
-          ref.isStrictSafeURL = false;
-          // URL NEVER over-encoded
-          var i = queryItem.errors.indexOf('over-encoded-value');
-          if (i > -1) {
-            queryItem.errors.splice(i, 1);
-          }
-        }
-        var subModel = tryParseURL(decodedValueToURL, depth + 1);
+      if (!queryItem.isSafeQuery) {
+        ref.isStrictSafeURL = false;
+      }
+      if (queryItem.decodeToURL) {
+        var subModel = tryParseURL(queryItem.decodeToURL, depth + 1);
         subModel.forEach(e => model.push(e));
       }
     });
@@ -181,14 +190,19 @@
       + renderBadge(model.isSafeURL, 'Safe')
       + renderBadge(model.isStrictSafeURL, 'Strict-Safe')
       + '</div>'
-      + '<table><thead><th>key</th><th>value</th></thead><tbody>';
+    if (model.URL && model.URL.hash) {
+      output += '<div class="hash"><span>hash = ' + model.URL.hash.slice(1) + '</span>'
+      output += (model.errors.contains('less-encoded-hash') ? renderBadge(false, 'Less-Encoded') : '') + '</div>'
+    }
+    output += '<table><thead><th>key</th><th>value</th></thead><tbody>';
     model.queryItems.forEach(function (queryItem) {
       output += ('<tr><td>'
         + '<span>' + queryItem.key + '</span>'
         + (queryItem.errors.contains('less-encoded-key') ? renderBadge(false, 'Less-Encoded') : '')
         + (queryItem.errors.contains('over-encoded-key') ? renderBadge(false, 'Over-Encoded') : '')
         + '</td><td>'
-        + '<span>' + queryItem.value + '</span>'
+        + (queryItem.value ? ('<span>' + queryItem.value + '</span>') : '')
+        + (queryItem.errors.contains('empty-value') ? renderBadge(false, 'Empty') : '')
         + (queryItem.errors.contains('less-encoded-value') ? renderBadge(false, 'Less-Encoded') : '')
         + (queryItem.errors.contains('over-encoded-value') ? renderBadge(false, 'Over-Encoded') : '')
         + '</td></tr>');
