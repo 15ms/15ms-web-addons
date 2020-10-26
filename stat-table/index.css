@@ -1,0 +1,45 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html, body, div#app {
+  font-size: 4vw;
+  height: 100%;
+  min-height: 20rem;
+  overflow: hidden;
+}
+
+div#app {
+  padding: 1rem;
+}
+
+div#input > p {
+  margin: .4rem 0 .25rem;
+  font-size: .9rem;
+  color: #444;
+}
+
+textarea {
+  box-sizing: border-box;
+  width: 100%;
+  height: 20vw;
+  padding: .3rem;
+  border: 2px solid #ccc;
+  outline: none;
+}
+
+div#output {
+  background: #eee;
+  font-size: .9rem;
+  margin-top: .75rem;
+  padding: .75rem;
+}
+
+div#output > div {
+  margin-bottom: 1rem;
+}
+
+div#output > div:last-of-type {
+  margin-bottom: 0;
+}
