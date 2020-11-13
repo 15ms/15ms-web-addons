@@ -1,5 +1,5 @@
-# sartrey-addons
+# 15ms-web-addons
 
 1. create a directory for addon named with addon name
 2. create a file `addon.json`
-3. commit and update from sartrey-web
+3. commit and update from 15ms-web
