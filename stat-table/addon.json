@@ -1,3 +1,7 @@
 {
-  "title": "统计计算器"
+  "name": "stat-table",
+  "title": "统计计算器",
+  "category": "分析",
+  "vendor": "15ms.net",
+  "version": "0.1.0"
 }

@@ -1,4 +1,8 @@
 {
+  "name": "test-jump",
   "title": "测试跳出",
+  "category": "测试",
+  "vendor": "15ms.net",
+  "version": "0.1.0",
   "start": "https://m.baidu.com"
 }

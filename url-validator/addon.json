@@ -1,3 +1,7 @@
 {
-  "title": "URL检查器"
+  "name": "url-validator",
+  "title": "URL检查器",
+  "category": "开发",
+  "vendor": "15ms.net",
+  "version": "0.1.0"
 }
